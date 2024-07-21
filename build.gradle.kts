@@ -1,26 +1,33 @@
 plugins {
-    id("java")
+    id ("java")
+    id ("io.freefair.lombok") version "8.6"
     id ("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "dev.faceless"
 version = "1.0"
 
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("net.minestom:minestom-snapshots:7320437640")
+    implementation("net.minestom:minestom-snapshots:1f34e60ea6")
+    implementation ("org.slf4j:slf4j-simple:2.0.9")
+    //implementation("ch.qos.logback:logback-classic:1.5.6")
 }
 
 tasks.shadowJar {
     archiveClassifier.set("shadow")
     manifest {
         attributes["Main-Class"] = "dev.faceless.Main"
-        attributes["Description"] = "Test Minestom Server"
     }
+    destinationDirectory.set(File("C:\\Users\\Faceless\\Desktop\\Minestom"))
 }
 
 tasks.assemble{

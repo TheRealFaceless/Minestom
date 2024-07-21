@@ -1,4 +1,4 @@
-package dev.faceless.world.generators;
+package me.dev.faceless.world.generators;
 
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.generator.GenerationUnit;

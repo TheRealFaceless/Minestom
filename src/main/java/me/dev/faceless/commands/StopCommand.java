@@ -1,6 +1,5 @@
-package dev.faceless.commands;
+package me.dev.faceless.commands;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
@@ -14,7 +13,6 @@ public class StopCommand extends Command {
     }
 
     private void execute(@NotNull CommandSender commandSender, @NotNull CommandContext commandContext) {
-        MinecraftServer.stopCleanly();
-        commandSender.sendMessage("Stopping Server...");
+        Runtime.getRuntime().exit(0);
     }
 }

@@ -1,4 +1,4 @@
-package dev.faceless.commands;
+package me.dev.faceless.commands;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,12 +21,11 @@ public class GamemodeCommand extends Command {
         super("gamemode", "gm");
 
         ArgumentEnum<GameMode> gamemode = ArgumentType.Enum("gamemode", GameMode.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
-        gamemode.setCallback((sender, exception) -> {
-            sender.sendMessage(
-                    Component.text("Invalid gamemode ", NamedTextColor.RED)
-                            .append(Component.text(exception.getInput(), NamedTextColor.WHITE))
-                            .append(Component.text("!")));
-        });
+        gamemode.setCallback((sender, exception) ->
+                sender.sendMessage(
+                        Component.text("Invalid gamemode ", NamedTextColor.RED)
+                                .append(Component.text(exception.getInput(), NamedTextColor.WHITE))
+                                .append(Component.text("!"))));
 
         ArgumentEntity player = ArgumentType.Entity("targets").onlyPlayers(true);
 
@@ -36,6 +35,7 @@ public class GamemodeCommand extends Command {
             sender.sendMessage(Component.text("Usage: /" + commandName + " <gamemode> [targets]", NamedTextColor.RED));
         });
 
+        //Command Syntax for /gamemode <gamemode>
         addSyntax((sender, context) -> {
             if (!(sender instanceof Player p)) {
                 sender.sendMessage(Component.text("Please run this command in-game.", NamedTextColor.RED));
@@ -52,6 +52,7 @@ public class GamemodeCommand extends Command {
             executeSelf(p, mode);
         }, gamemode);
 
+        //Command Syntax for /gamemode <gamemode> [targets]
         addSyntax((sender, context) -> {
             if (sender instanceof Player p && p.getPermissionLevel() < 2) {
                 sender.sendMessage(Component.text("You don't have permission to use this command.", NamedTextColor.RED));
@@ -65,21 +66,30 @@ public class GamemodeCommand extends Command {
         }, gamemode, player);
     }
 
+    /**
+     * Sets the gamemode for the specified entities, and
+     * notifies them (and the sender) in the chat.
+     */
     private void executeOthers(CommandSender sender, GameMode mode, List<Entity> entities) {
         if (entities.isEmpty()) {
+            //If there are no players that could be modified, display an error message
             if (sender instanceof Player)
                 sender.sendMessage(Component.translatable("argument.entity.notfound.player", NamedTextColor.RED));
             else sender.sendMessage(Component.text("No player was found", NamedTextColor.RED));
         } else for (Entity entity : entities) {
             if (entity instanceof Player p) {
-                if (p == sender) executeSelf((Player) sender, mode);
-                else {
+                if (p == sender) {
+                    //If the player is the same as the sender, call
+                    //executeSelf to display one message instead of two
+                    executeSelf((Player) sender, mode);
+                } else {
                     p.setGameMode(mode);
 
                     String gamemodeString = "gameMode." + mode.name().toLowerCase(Locale.ROOT);
                     Component gamemodeComponent = Component.translatable(gamemodeString);
                     Component playerName = p.getDisplayName() == null ? p.getName() : p.getDisplayName();
 
+                    //Send a message to the changed player and the sender
                     p.sendMessage(Component.translatable("gameMode.changed", gamemodeComponent));
                     sender.sendMessage(Component.translatable("commands.gamemode.success.other", playerName, gamemodeComponent));
                 }
@@ -87,8 +97,13 @@ public class GamemodeCommand extends Command {
         }
     }
 
+    /**
+     * Sets the gamemode for the executing Player, and
+     * notifies them in the chat.
+     */
     private void executeSelf(Player sender, GameMode mode) {
         sender.setGameMode(mode);
+
 
         String gamemodeString = "gameMode." + mode.name().toLowerCase(Locale.ROOT);
         Component gamemodeComponent = Component.translatable(gamemodeString);
