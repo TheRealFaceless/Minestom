@@ -8,7 +8,6 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
-import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupItemEvent;
@@ -26,9 +25,9 @@ import java.util.Random;
 public class GeneralListeners {
 
     private static final Random random = new Random(System.currentTimeMillis());
-    private static final double ITEM_DROP_VELOCITY_MULTIPLIER = 20;
+    private static final double ITEM_DROP_VELOCITY_MULTIPLIER = 6;
 
-    public static final  EventNode<Event> ALL_NODE = EventNode.type("i-hear-all", EventFilter.ALL)
+    public static final  EventNode<Event> ALL_NODE = EventNode.all("i-hear-all")
             .addListener(AsyncPlayerConfigurationEvent.class, event -> {
                 final Player player = event.getPlayer();
                 event.setSpawningInstance(Main.getWorldManager().getInstanceContainer());
@@ -39,7 +38,6 @@ public class GeneralListeners {
             }).addListener(ItemDropEvent.class, event -> {
                 final Player player = event.getPlayer();
                 ItemStack droppedItem = event.getItemStack();
-
                 Pos playerPos = player.getPosition();
                 ItemEntity itemEntity = new ItemEntity(droppedItem);
                 itemEntity.setPickupDelay(Duration.of(500, TimeUnit.MILLISECOND));
@@ -48,13 +46,10 @@ public class GeneralListeners {
                 itemEntity.setVelocity(velocity);
             }).addListener(PickupItemEvent.class, event-> {
                 ItemStack itemStack = event.getItemStack();
-                if(event.getEntity() instanceof Player player) {
-                    player.getInventory().addItemStack(itemStack);
-                }
+                if(event.getEntity() instanceof Player player) player.getInventory().addItemStack(itemStack);
             }).addListener(PlayerChunkUnloadEvent.class, event-> {
                 if(event.getEntity().getInstance() == null) return;
                 final Chunk chunk = event.getInstance().getChunk(event.getChunkX(), event.getChunkZ());
-
                 if(chunk == null) return;
                 save(chunk);
             });

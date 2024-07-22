@@ -34,8 +34,7 @@ public class TeleportCommand extends Command {
     }
 
     private void onPositionTeleport(CommandSender sender, CommandContext context) {
-        final Player player = (Player) sender;
-
+        if(!(sender instanceof Player player)) return;
         final RelativeVec relativeVec = context.get("pos");
         final Pos position = player.getPosition().withCoord(relativeVec.from(player));
         player.teleport(position);

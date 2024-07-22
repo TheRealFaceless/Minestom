@@ -1,14 +1,10 @@
 package me.dev.faceless;
 
-import me.dev.faceless.commands.GamemodeCommand;
-import me.dev.faceless.commands.StopCommand;
-import me.dev.faceless.commands.TeleportCommand;
 import me.dev.faceless.console.ConsoleThread;
 import lombok.Getter;
 import me.dev.faceless.listeners.GeneralListeners;
+import me.dev.faceless.properties.PropertiesUpdater;
 import me.dev.faceless.world.WorldManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.GlobalEventHandler;
@@ -17,11 +13,15 @@ import net.minestom.server.instance.InstanceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Getter
 public class Main {
-
+    private final static long startTime = System.currentTimeMillis();
     @Getter private static final Logger Logger = LoggerFactory.getLogger(Main.class);
+
+    static {
+        PropertiesUpdater.updatePropertiesFile("server.properties");
+    }
+
     @Getter private static final MinecraftServer minecraftServer = MinecraftServer.init();
     @Getter private static final InstanceManager instanceManager = MinecraftServer.getInstanceManager();
     @Getter private static final CommandManager commandManager = MinecraftServer.getCommandManager();
@@ -29,24 +29,33 @@ public class Main {
     @Getter private static final WorldManager worldManager = new WorldManager(instanceManager);
 
     public static void main(String[] args) {
-        final long startTime = System.currentTimeMillis();
+        Commands.register(commandManager);
+        setupEventHandlers();
+        setupShutdownHook();
 
-        MojangAuth.init();
-
-        commandManager.register(new StopCommand());
-        commandManager.register(new GamemodeCommand());
-        commandManager.register(new TeleportCommand());
-        commandManager.setUnknownCommandCallback((sender, command) -> sender.sendMessage(Component.text("Unknown command", NamedTextColor.RED)));
-
-        eventHandler.addChild(GeneralListeners.ALL_NODE);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(Main.disable()));
-        ConsoleThread.start();
-
-        minecraftServer.start("localhost", 25565);
+        initMojangAuth();
+        startServer();
         Logger.info("Server Started in {}ms", System.currentTimeMillis() - startTime);
     }
 
+    private static void initMojangAuth() {
+        boolean onlineMode = Boolean.parseBoolean(System.getProperty("minestom.online-mode", "true"));
+        if (onlineMode) MojangAuth.init();
+        else Logger.warn("WARNING: Online mode is OFF. The server is not verifying player accounts with Mojang.");
+    }
+
+    private static void setupEventHandlers() {
+        eventHandler.addChild(GeneralListeners.ALL_NODE);
+    }
+
+    private static void setupShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(disable()));
+        ConsoleThread.start();
+    }
+
+    private static void startServer() {
+        minecraftServer.start("localhost", Integer.parseInt(System.getProperty("minestom.server-port")));
+    }
 
     public static Runnable disable() {
         return () -> {
@@ -63,13 +72,4 @@ public class Main {
             }
         };
     }
-
-    private static void tryPreloadClass(String className) {
-        try {
-            Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            System.err.println("An expected class  " + className + " was not found for preloading: " + e.getMessage());
-        }
-    }
-
 }

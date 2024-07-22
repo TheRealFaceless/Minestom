@@ -35,7 +35,10 @@ public class WorldManager {
         instanceContainer.enableAutoChunkLoad(true);
         instanceContainer.setGenerator(new TestSimplex());
 
-        saveTask = MinecraftServer.getSchedulerManager().buildTask(this::save).repeat(TaskSchedule.seconds(300)).schedule();
+        saveTask = MinecraftServer.getSchedulerManager().buildTask(this::save)
+                .delay(TaskSchedule.seconds(300))
+                .repeat(TaskSchedule.seconds(300))
+                .schedule();
     }
 
 

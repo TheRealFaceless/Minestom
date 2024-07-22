@@ -18,8 +18,7 @@ repositories {
 
 dependencies {
     implementation("net.minestom:minestom-snapshots:1f34e60ea6")
-    implementation ("org.slf4j:slf4j-simple:2.0.9")
-    //implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.6")
 }
 
 tasks.shadowJar {

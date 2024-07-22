@@ -13,6 +13,7 @@ worlds
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+server.properties
 
 ### Eclipse ###
 .apt_generated

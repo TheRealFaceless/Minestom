@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class ConsoleThread implements Runnable {
     private final ConsoleSender consoleSender = new ConsoleSender();
-    private static boolean running = true;
+    private static boolean running = false;
 
     @Override
     public void run() {
@@ -26,6 +26,7 @@ public class ConsoleThread implements Runnable {
         Thread thread = new Thread(new ConsoleThread());
         thread.setName("Console Thread");
         thread.start();
+        running = true;
     }
 
     public static void stop() {
