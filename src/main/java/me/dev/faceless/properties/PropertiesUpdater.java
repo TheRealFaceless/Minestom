@@ -1,6 +1,7 @@
 package me.dev.faceless.properties;
 
 import me.dev.faceless.Main;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 public class PropertiesUpdater {
+
+    private static final Logger LOGGER = Main.getLogger();
 
     public static void updatePropertiesFile(String fileName) {
         Properties defaultProperties = new Properties();
@@ -56,18 +59,18 @@ public class PropertiesUpdater {
         Properties existingProperties = new Properties();
         File file = new File(fileName);
         if (file.isDirectory()) {
-            Main.getLogger().error("The path '{}' is a directory, not a file.", fileName);
+            LOGGER.error("The path '{}' is a directory, not a file.", fileName);
             return;
         }
 
         if (!file.exists()) {
             try {
                 if(!file.createNewFile()) {
-                    Main.getLogger().error("Error creating server properties file.");
+                    LOGGER.error("Error creating server properties file.");
                     return;
                 }
             } catch (IOException e) {
-                Main.getLogger().error("Failed to create new properties file.", e);
+                LOGGER.error("Failed to create new properties file.", e);
                 return;
             }
         }
@@ -76,7 +79,7 @@ public class PropertiesUpdater {
             try (FileInputStream fis = new FileInputStream(file)) {
                 existingProperties.load(fis);
             } catch (IOException e) {
-                Main.getLogger().error("Failed to read existing properties file.", e);
+                LOGGER.error("Failed to read existing properties file.", e);
                 return;
             }
         }
@@ -103,9 +106,9 @@ public class PropertiesUpdater {
                     writeProperty(writer, entry.getKey(), entry.getValue());
                 }
 
-                Main.getLogger().warn("Modified server.properties with missing properties added");
+                LOGGER.warn("Modified server.properties with missing properties added");
             } catch (IOException e) {
-                Main.getLogger().error("Failed to write properties file.", e);
+                LOGGER.error("Failed to write properties file.", e);
             }
         }
 
@@ -117,7 +120,7 @@ public class PropertiesUpdater {
     }
 
     private static void loadProperties(String fileName) {
-        Main.getLogger().info("Loading server.properties");
+        LOGGER.info("Loading server.properties");
         Properties properties = new Properties();
         try (FileInputStream fis = new FileInputStream(fileName)) {
             properties.load(fis);
@@ -125,7 +128,7 @@ public class PropertiesUpdater {
                 System.setProperty(name, properties.getProperty(name));
             }
         } catch (IOException e) {
-            Main.getLogger().error("Failed to load properties file.", e);
+            LOGGER.error("Failed to load properties file.", e);
         }
     }
 }

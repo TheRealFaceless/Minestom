@@ -13,6 +13,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.anvil.AnvilLoader;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -23,6 +24,8 @@ public class WorldManager {
     private final File worldFile;
     private final Task saveTask;
     private final InstanceContainer instanceContainer;
+    
+    private static final Logger LOGGER = Main.getLogger();
 
     public WorldManager(InstanceManager manager) {
         worldFile = new File(FileUtils.getServerFolder(), "worlds/world");
@@ -45,17 +48,17 @@ public class WorldManager {
     public void saveChunk(Chunk chunk) {
         instanceContainer.saveChunkToStorage(chunk);
         instanceContainer.saveInstance();
-        Main.getLogger().info("Saving chunk {}", chunk);
+        LOGGER.info("Saving chunk {}", chunk);
     }
 
     public void save() {
         instanceContainer.saveChunksToStorage();
         instanceContainer.saveInstance();
-        Main.getLogger().info("Saving all chunks");
+        LOGGER.info("Saving all chunks");
     }
 
     public void stopSaveTask() {
         if (saveTask != null && saveTask.isAlive()) saveTask.cancel();
-        Main.getLogger().info("Disabling World save task");
+        LOGGER.info("Disabling World save task");
     }
 }
